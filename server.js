@@ -3,18 +3,13 @@ import express from 'express';
 import mongoose from 'mongoose';
 import authRoutes from './src/routes/authRoutes.js';
 import memberRoutes from './src/routes/memberRoutes.js';
-import jwt from 'jsonwebtoken';
-import crypto from 'crypto'
-import { User } from './src/models/userModel.js';
-import nodeMailer from 'nodemailer'
-import bcrypt from 'bcryptjs'
 import cors from 'cors';
-import { Member } from './src/models/memberModel.js'
+
 // Load environment variables
 configDotenv();
 
 const app = express();
-const port = 5000;
+const port = process.env.PORT;
 
 //MiddleWares
 app.use(express.json());
