@@ -35,7 +35,7 @@ export const registerUser = async (req,res) => {
 
         await newUser.save();
 
-        const token = jwt.sign({email:newUser.email},process.env.JWT_SECRET_KEY,{expiresIn:'1d'})
+        const token = jwt.sign({id:newUser._id},process.env.JWT_SECRET_KEY,{expiresIn:'1d'})
 
         res.status(201).json({ message: "User registered successfully",token });
     }catch(error){
@@ -67,7 +67,7 @@ export const loginUser = async (req,res) => {
         return res.status(400).json({message:"Incorrect password"})
       }
 
-      const token = jwt.sign({email:user.email},process.env.JWT_SECRET_KEY,{expiresIn:'1d'})
+      const token = jwt.sign({id:user._id},process.env.JWT_SECRET_KEY,{expiresIn:'1d'})
       
       res.status(201).json({message:"Successfully logged in",token})
     }catch(error){
@@ -86,7 +86,7 @@ export const generateToken = async (req,res) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
     const newToken = jwt.sign(
-      { email: decodedToken.email },
+      { id: decodedToken._id },
       process.env.JWT_SECRET_KEY,
       { expiresIn: '1d' }
     );

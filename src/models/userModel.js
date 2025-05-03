@@ -1,6 +1,6 @@
-import mongoose from "mongoose";
+import mongoose, { Schema } from "mongoose";
 
-const UserSchema = mongoose.Schema({
+const UserSchema = new mongoose.Schema({
     name:{
         type:String,
         required:true
@@ -19,7 +19,28 @@ const UserSchema = mongoose.Schema({
     },
     otpExpiresTime:{
         type:Number
-    }
+    },
+    membersList:[
+        {
+            name:{
+                type:String,
+                required:true
+            },
+            email:{
+                type:String,
+                required:true,
+                unique:true
+            },
+            gender:{
+                type:String,
+                required:true,
+            },
+            age:{
+                type:Number,
+                required:true
+            }
+        }
+    ] 
 },
 {
     timestamps:true

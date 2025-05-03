@@ -1,28 +1,29 @@
 import { User } from '../models/userModel.js';
-import { Member } from '../models/memberModel.js'
+
 
 
 export const addMember = async (req,res) => {
+
+  const user = req.user
+  console.log('user: ', user);
+
   const { name,email,age,gender } = req.body;
+
 
   if(!name || !email || !age || !gender){
     return res.status(400).json({message:"Please provide all details"})
   } 
 
-  const existingMember = await Member.findOne({email})
+  const existingMember = user.membersList.find(member => member.email === email)
+  console.log('existingMember: ', existingMember);
 
   if(existingMember){
     return res.status(400).json({message:"Member already registered with this email id"})
   }
   try{
-    const newMember = new Member({
-      name,
-      email,
-      age,
-      gender
-    }) 
+    user.membersList.push({ name,email,age,gender })
   
-    await newMember.save()
+    await user.save()
 
     res.status(200).json({ message:`Member successfully added with name ${name}` })
   }catch(error){
@@ -31,17 +32,14 @@ export const addMember = async (req,res) => {
  }
 
 export const fetchMembers = async (req,res) => {
-
-  const {email} = req.params;
-
-  const user = await User.findOne({email}).lean()
+  const user = req.user;
 
   if(!user){
     return res.status(400).json({ message:"You dont have an registered account" })
   }
 
   try{
-    const membersData = await Member.find().lean()
+    const membersData = await user.membersList
 
     res.status(200).json({ message:"Members data fetched successfully",membersData })
   }catch(error){
@@ -50,30 +48,36 @@ export const fetchMembers = async (req,res) => {
 }
 
 export const updateMember = async (req, res) => {
-  const { name, age, gender } = req.body;
+  const user = req.user;
+  console.log('user: ', user);
   const { id } = req.params; 
+  console.log('id: ', id);
+
+  const { name,age,gender,email } = req.body
 
   try {
 
-    const member = await Member.findById(id);
+    const member = await user.membersList.id(id);
+    console.log('member: ', member);
     if (!member) {
       return res
         .status(404)
         .json({ message: `Member not found with id ${id}` });
     }
 
-    // 2. Mutate fields
+    // 2. update fields
     member.name   = name;
     member.age    = age;
     member.gender = gender;
+    member.email = email;
 
-    // 3. Save back
-    const updatedMember = await member.save();
+    // 3. Save the parent document
+    await user.save();
 
     // 4. Send response
     return res.status(200).json({
       message: "Member updated successfully",
-      updatedMember
+      member
     });
   } catch (error) {
     console.error("Error updating member:", error);
@@ -84,17 +88,22 @@ export const updateMember = async (req, res) => {
 };
 
 export const deleteMember = async (req, res) => {
+    const user = req.user
     const { id } = req.params;
   
     try {
-      const deletedMember = await Member.findByIdAndDelete(id);
+      const member = await user.membersList.id(id);
   
-      if (!deletedMember) {
+      if (!member) {
         return res.status(404).json({
-          message: `No member found with email ${id}`
+        message: `No member found with email ${id}`
         });
       }
-  
+      
+      user.membersList.pull({ _id: id });
+
+      await user.save()
+
       return res.status(200).json({
         message: "Member deleted successfully"
       });
