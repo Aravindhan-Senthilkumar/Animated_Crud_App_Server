@@ -86,7 +86,7 @@ export const generateToken = async (req,res) => {
     const decodedToken = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
     const newToken = jwt.sign(
-      { id: decodedToken._id },
+      { id: decodedToken.id },
       process.env.JWT_SECRET_KEY,
       { expiresIn: '1d' }
     );
