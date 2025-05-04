@@ -21,7 +21,7 @@ const UserSchema = new mongoose.Schema({
         type:Number
     },
     membersList:[
-        {
+        {   
             name:{
                 type:String,
                 required:true
@@ -29,7 +29,6 @@ const UserSchema = new mongoose.Schema({
             email:{
                 type:String,
                 required:true,
-                unique:true
             },
             gender:{
                 type:String,
